@@ -12,7 +12,7 @@ runs:
   steps:
     - name: Run CMake
       shell: ${{ inputs.shell }}
-    - run: |
+      run: |
         cmake --preset ${{ inputs.preset }}
         cmake --build out/build/${{ inputs.preset }}
         cmake --build out/build/${{ inputs.preset }} --target install
