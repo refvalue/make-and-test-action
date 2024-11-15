@@ -15,6 +15,10 @@ inputs:
     required: false
     default: ''
   files_to_exclude:
+    description: 'The regex pattern used to exclude generated files for coverage'
+    required: false
+    default: ''
+  source_files_to_exclude:
     description: 'The regex pattern used to exclude source files for coverage'
     required: false
     default: ''
@@ -22,8 +26,9 @@ inputs:
 env:
   COVERAGE_ENABLED: ${{ inputs.coverage && runner.os == 'Linux' }}
   BUILD_DIR: "out/build/${{ inputs.preset }}"
-  DIR_EXCLUSION_ARG: ${{ inputs.directories_to_exclude == '' && '' || "--exclude-directories '${{ inputs.directories_to_exclude }}'" }}
-  FILE_EXCLUSION_ARG: ${{ inputs.files_to_exclude == '' && '' || "--exclude '${{ inputs.files_to_exclude }}'" }}
+  DIR_EXCLUSION_ARG: ${{ inputs.directories_to_exclude == '' && '' || "--gcov-exclude-directories '${{ inputs.directories_to_exclude }}'" }}
+  FILE_EXCLUSION_ARG: ${{ inputs.files_to_exclude == '' && '' || "--gcov-exclude '${{ inputs.files_to_exclude }}'" }}
+  SOURCE_FILE_EXCLUSION_ARG: ${{ inputs.source_files_to_exclude == '' && '' || "--exclude '${{ inputs.source_files_to_exclude }}'" }}
   
 runs:
   using: "composite"
@@ -50,7 +55,7 @@ runs:
       shell: ${{ inputs.shell }}
       run: |
         cd ${{ env.BUILD_DIR }}
-        gcovr --root .. --coveralls coverage.json --exclude-unreachable-branches --exclude-throw-branches ${{ env.DIR_EXCLUSION_ARG }} ${{ env.FILE_EXCLUSION_ARG }}
+        gcovr --root .. --coveralls coverage.json --exclude-unreachable-branches --exclude-throw-branches ${{ env.DIR_EXCLUSION_ARG }} ${{ env.FILE_EXCLUSION_ARG }} ${{ env.SOURCE_FILE_EXCLUSION_ARG }}
     - name: Upload coverage to Coveralls
       if: ${{ env.COVERAGE_ENABLED }}
       uses: coverallsapp/github-action@v2
