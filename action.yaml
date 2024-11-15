@@ -15,17 +15,14 @@ inputs:
     required: false
     default: 'gcovr.cfg'
 
-
-  
 runs:
   using: "composite"
-  env:
-    COVERAGE_ENABLED: ${{ inputs.coverage && runner.os == 'Linux' }}
-    BUILD_DIR: "out/build/${{ inputs.preset }}"
   steps:
-    - name: Echo environment variables
+    - name: Set up environment variables
       shell: ${{ inputs.shell }}
       run: |
+        export COVERAGE_ENABLED=${{ inputs.coverage && runner.os == 'Linux' }}
+        export BUILD_DIR="out/build/${{ inputs.preset }}"
         echo "COVERAGE_ENABLED: ${{ env.COVERAGE_ENABLED }}"
         echo "BUILD_DIR: ${{ env.BUILD_DIR }}"
     - name: Configure coverage flags on Linux build
