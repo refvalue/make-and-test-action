@@ -10,10 +10,10 @@ inputs:
     description: 'Whether to run coverage analysis'
     required: false
     default: false
-  gconv_config_file:
-    description: 'The gconv configuration file'
+  gcovr_config_file:
+    description: 'The gcovr configuration file'
     required: false
-    default: 'gconv.cfg'
+    default: 'gcovr.cfg'
 
 env:
   COVERAGE_ENABLED: ${{ inputs.coverage && runner.os == 'Linux' }}
@@ -22,6 +22,11 @@ env:
 runs:
   using: "composite"
   steps:
+    - name: Echo environment variables
+      shell: ${{ inputs.shell }}
+      run: |
+        echo "COVERAGE_ENABLED: ${{ env.COVERAGE_ENABLED }}"
+        echo "BUILD_DIR: ${{ env.BUILD_DIR }}"
     - name: Configure coverage flags on Linux build
       if: ${{ env.COVERAGE_ENABLED }}
       shell: ${{ inputs.shell }}
@@ -43,7 +48,7 @@ runs:
       if: ${{ env.COVERAGE_ENABLED }}
       shell: ${{ inputs.shell }}
       run: |
-        gcovr --config "${{ inputs.gconv_config_file }}" --exclude-unreachable-branches --exclude-throw-branches --coveralls --output "${{ env.BUILD_DIR }}/coverage.json"
+        gcovr --config "${{ inputs.gcovr_config_file }}" --exclude-unreachable-branches --exclude-throw-branches --coveralls --output "${{ env.BUILD_DIR }}/coverage.json"
     - name: Upload coverage to Coveralls
       if: ${{ env.COVERAGE_ENABLED }}
       uses: coverallsapp/github-action@v2
