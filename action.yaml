@@ -10,25 +10,14 @@ inputs:
     description: 'Whether to run coverage analysis'
     required: false
     default: false
-  directories_to_exclude:
-    description: 'The regex pattern used to exclude sub-directories in the working directory for coverage'
+  gconv_config_file:
+    description: 'The gconv configuration file'
     required: false
-    default: ''
-  files_to_exclude:
-    description: 'The regex pattern used to exclude generated files for coverage'
-    required: false
-    default: ''
-  source_files_to_exclude:
-    description: 'The regex pattern used to exclude source files for coverage'
-    required: false
-    default: ''
+    default: 'gconv.cfg'
 
 env:
   COVERAGE_ENABLED: ${{ inputs.coverage && runner.os == 'Linux' }}
   BUILD_DIR: "out/build/${{ inputs.preset }}"
-  DIR_EXCLUSION_ARG: ${{ inputs.directories_to_exclude == '' && '' || "--gcov-exclude-directories '${{ inputs.directories_to_exclude }}'" }}
-  FILE_EXCLUSION_ARG: ${{ inputs.files_to_exclude == '' && '' || "--gcov-exclude '${{ inputs.files_to_exclude }}'" }}
-  SOURCE_FILE_EXCLUSION_ARG: ${{ inputs.source_files_to_exclude == '' && '' || "--exclude '${{ inputs.source_files_to_exclude }}'" }}
   
 runs:
   using: "composite"
@@ -54,11 +43,11 @@ runs:
       if: ${{ env.COVERAGE_ENABLED }}
       shell: ${{ inputs.shell }}
       run: |
-        cd ${{ env.BUILD_DIR }}
-        gcovr --root .. --coveralls coverage.json --exclude-unreachable-branches --exclude-throw-branches ${{ env.DIR_EXCLUSION_ARG }} ${{ env.FILE_EXCLUSION_ARG }} ${{ env.SOURCE_FILE_EXCLUSION_ARG }}
+        gcovr --config "${{ inputs.gconv_config_file }}" --exclude-unreachable-branches --exclude-throw-branches --coveralls --output "${{ env.BUILD_DIR }}/coverage.json"
     - name: Upload coverage to Coveralls
       if: ${{ env.COVERAGE_ENABLED }}
       uses: coverallsapp/github-action@v2
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         coveralls-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
+        file: "${{ env.BUILD_DIR }}/coverage.json"
