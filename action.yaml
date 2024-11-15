@@ -11,11 +11,11 @@ inputs:
     required: false
     default: false
   directories_to_exclude:
-    description: 'The regex pattern used to exclude directories for coverage'
+    description: 'The regex pattern used to exclude sub-directories in the working directory for coverage'
     required: false
     default: ''
   files_to_exclude:
-    description: 'The regex pattern used to exclude files for coverage'
+    description: 'The regex pattern used to exclude source files for coverage'
     required: false
     default: ''
 
