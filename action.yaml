@@ -16,3 +16,8 @@ runs:
         cmake --preset ${{ inputs.preset }}
         cmake --build out/build/${{ inputs.preset }}
         cmake --build out/build/${{ inputs.preset }} --target install
+    - name: Run Test
+      shell: ${{ inputs.shell }}
+      run: |
+        cd out/build/${{ inputs.preset }}
+        ctest --output-on-failure
