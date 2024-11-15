@@ -16,8 +16,6 @@ inputs:
     default: 'gcovr.cfg'
 
 runs:
-  env:
-    
   using: "composite"
   steps:
     - name: Set up environment variables
