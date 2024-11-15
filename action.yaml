@@ -35,7 +35,7 @@ runs:
       if: ${{ inputs.coverage && runner.os == 'Linux' }}
       shell: ${{ inputs.shell }}
       run: |
-        gcovr --config "${{ inputs.gcovr_config_file }}" --exclude-unreachable-branches --exclude-throw-branches --coveralls --output "out/build/${{ inputs.preset }}/coverage.json"
+        gcovr --config "${{ inputs.gcovr_config_file }}" --coveralls --output "out/build/${{ inputs.preset }}/coverage.json"
     - name: Upload coverage to Coveralls
       if: ${{ inputs.coverage && runner.os == 'Linux' }}
       uses: coverallsapp/github-action@v2
