@@ -22,11 +22,10 @@ runs:
       shell: ${{ inputs.shell }}
       run: |
         cmake --preset ${{ inputs.preset }}
-        cmake --build "out/build/${{ inputs.preset }}"
+        cmake --build "out/build/${{ inputs.preset }}" -DCMAKE_CXX_FLAGS="${{ env.CMAKE_CXX_FLAGS }}"
         cmake --build "out/build/${{ inputs.preset }}" --target install
       env:
-        CXXFLAGS: ${{ (inputs.coverage && runner.os == 'Linux') && '--coverage -O0' || '' }}
-        LDFLAGS: ${{ (inputs.coverage && runner.os == 'Linux') && '--coverage -O0' || '' }}
+        CMAKE_CXX_FLAGS: ${{ (inputs.coverage && runner.os == 'Linux') && '--coverage -O0' || '' }}
     - name: Run Test
       shell: ${{ inputs.shell }}
       run: |
