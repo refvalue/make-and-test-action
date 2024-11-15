@@ -21,8 +21,8 @@ runs:
     - name: Run CMake
       shell: ${{ inputs.shell }}
       run: |
-        cmake --preset ${{ inputs.preset }}
-        cmake --build "out/build/${{ inputs.preset }}" -DCMAKE_CXX_FLAGS="${{ env.CMAKE_CXX_FLAGS }}"
+        cmake --preset ${{ inputs.preset }} -DCMAKE_CXX_FLAGS="${{ env.CMAKE_CXX_FLAGS }}"
+        cmake --build "out/build/${{ inputs.preset }}"
         cmake --build "out/build/${{ inputs.preset }}" --target install
       env:
         CMAKE_CXX_FLAGS: ${{ (inputs.coverage && runner.os == 'Linux') && '--coverage -O0' || '' }}
