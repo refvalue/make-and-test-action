@@ -2,22 +2,58 @@ name: Project Build and Test
 inputs:
   preset:
     description: 'The CMake preset to be built'
-    required: true,
+    required: true
   shell:
     description: 'The shell executable that runs the script'
     required: true
+  coverage:
+    description: 'Whether to run coverage analysis'
+    required: false
+    default: false
+  directories_to_exclude:
+    description: 'The regex pattern used to exclude directories for coverage'
+    required: false
+    default: ''
+  files_to_exclude:
+    description: 'The regex pattern used to exclude files for coverage'
+    required: false
+    default: ''
 
+env:
+  COVERAGE_ENABLED: ${{ inputs.coverage && runner.os == 'Linux' }}
+  BUILD_DIR: "out/build/${{ inputs.preset }}"
+  DIR_EXCLUSION_ARG: ${{ inputs.directories_to_exclude == '' && '' || "--exclude-directories '${{ inputs.directories_to_exclude }}'" }}
+  FILE_EXCLUSION_ARG: ${{ inputs.files_to_exclude == '' && '' || "--exclude '${{ inputs.files_to_exclude }}'" }}
+  
 runs:
   using: "composite"
   steps:
+    - name: Configure coverage flags on Linux build
+      if: ${{ env.COVERAGE_ENABLED }}
+      shell: ${{ inputs.shell }}
+      run: |
+        export CXXFLAGS='--coverage -O0'
+        export LDFLAGS='--coverage -O0'
     - name: Run CMake
       shell: ${{ inputs.shell }}
       run: |
         cmake --preset ${{ inputs.preset }}
-        cmake --build out/build/${{ inputs.preset }}
-        cmake --build out/build/${{ inputs.preset }} --target install
+        cmake --build ${{ env.BUILD_DIR }}
+        cmake --build ${{ env.BUILD_DIR }} --target install
     - name: Run Test
       shell: ${{ inputs.shell }}
       run: |
-        cd out/build/${{ inputs.preset }}
+        cd ${{ env.BUILD_DIR }}
         ctest --output-on-failure
+    - name: Generate coverage report
+      if: ${{ env.COVERAGE_ENABLED }}
+      shell: ${{ inputs.shell }}
+      run: |
+        cd ${{ env.BUILD_DIR }}
+        gcovr --root .. --coveralls coverage.json --exclude-unreachable-branches --exclude-throw-branches ${{ env.DIR_EXCLUSION_ARG }} ${{ env.FILE_EXCLUSION_ARG }}
+    - name: Upload coverage to Coveralls
+      if: ${{ env.COVERAGE_ENABLED }}
+      uses: coverallsapp/github-action@v2
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        coveralls-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
