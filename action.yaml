@@ -25,19 +25,19 @@ runs:
         cmake --build "out/build/${{ inputs.preset }}"
         cmake --build "out/build/${{ inputs.preset }}" --target install
       env:
-        CMAKE_CXX_FLAGS: ${{ (inputs.coverage && runner.os == 'Linux') && '--coverage -O0' || '' }}
+        CMAKE_CXX_FLAGS: ${{ (inputs.coverage == true && runner.os == 'Linux') && '--coverage -O0' || '' }}
     - name: Run Test
       shell: ${{ inputs.shell }}
       run: |
         cd "out/build/${{ inputs.preset }}"
         ctest --output-on-failure
     - name: Generate coverage report
-      if: ${{ inputs.coverage && runner.os == 'Linux' }}
+      if: ${{ inputs.coverage == true && runner.os == 'Linux' }}
       shell: ${{ inputs.shell }}
       run: |
         gcovr --config "${{ inputs.gcovr_config_file }}" --exclude-unreachable-branches --exclude-throw-branches --gcov-ignore-parse-errors --coveralls --output "out/build/${{ inputs.preset }}/coverage.json"
     - name: Upload coverage to Coveralls
-      if: ${{ inputs.coverage && runner.os == 'Linux' }}
+      if: ${{ inputs.coverage == true && runner.os == 'Linux' }}
       uses: coverallsapp/github-action@v2
       with:
         file: "out/build/${{ inputs.preset }}/coverage.json"
