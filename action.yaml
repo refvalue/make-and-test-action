@@ -18,18 +18,15 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Configure coverage flags on Linux build
-      if: ${{ inputs.coverage && runner.os == 'Linux' }}
-      shell: ${{ inputs.shell }}
-      run: |
-        export "CXXFLAGS=--coverage -O0" >> "$GITHUB_ENV"
-        export "LDFLAGS=--coverage -O0" >>　"$GITHUB_ENV"
     - name: Run CMake
       shell: ${{ inputs.shell }}
       run: |
         cmake --preset ${{ inputs.preset }}
         cmake --build "out/build/${{ inputs.preset }}"
         cmake --build "out/build/${{ inputs.preset }}" --target install
+      env:
+        CXXFLAGS: ${{ (inputs.coverage && runner.os == 'Linux') && '--coverage -O0' || '' }}
+        LDFLAGS: ${{ (inputs.coverage && runner.os == 'Linux') && '--coverage -O0' || '' }}
     - name: Run Test
       shell: ${{ inputs.shell }}
       run: |
