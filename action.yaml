@@ -22,8 +22,8 @@ runs:
       if: ${{ inputs.coverage && runner.os == 'Linux' }}
       shell: ${{ inputs.shell }}
       run: |
-        export CXXFLAGS='--coverage -O0'
-        export LDFLAGS='--coverage -O0'
+        export "CXXFLAGS='--coverage -O0'" >> $GITHUB_ENV
+        export "LDFLAGS='--coverage -O0'" >>　$GITHUB_ENV
     - name: Run CMake
       shell: ${{ inputs.shell }}
       run: |
