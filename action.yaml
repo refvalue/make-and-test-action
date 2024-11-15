@@ -15,12 +15,13 @@ inputs:
     required: false
     default: 'gcovr.cfg'
 
-env:
-  COVERAGE_ENABLED: ${{ inputs.coverage && runner.os == 'Linux' }}
-  BUILD_DIR: "out/build/${{ inputs.preset }}"
+
   
 runs:
   using: "composite"
+  env:
+    COVERAGE_ENABLED: ${{ inputs.coverage && runner.os == 'Linux' }}
+    BUILD_DIR: "out/build/${{ inputs.preset }}"
   steps:
     - name: Echo environment variables
       shell: ${{ inputs.shell }}
