@@ -30,7 +30,7 @@ runs:
       shell: ${{ inputs.shell }}
       run: |
         cd "out/build/${{ inputs.preset }}"
-        ctest -V --output-on-failure
+        ctest --output-on-failure
     - name: Generate coverage report
       if: ${{ inputs.coverage == 'true' && runner.os == 'Linux' }}
       shell: ${{ inputs.shell }}
